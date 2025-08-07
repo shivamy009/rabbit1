@@ -47,13 +47,23 @@ async function processIncomingMessage(message, value, data, collection, io) {
   try {
     const contact = value.contacts ? value.contacts.find(c => c.wa_id === message.from) : null;
     
+    // Determine recipient_id based on who sent the message
+    let recipient_id;
+    if (message.from === process.env.BUSINESS_PHONE_NUMBER || message.from === '918329446654') {
+      // Business is sending message, recipient is the customer
+      recipient_id = value.contacts?.[0]?.wa_id || 'unknown';
+    } else {
+      // Customer is sending message, recipient is the business
+      recipient_id = value.metadata?.display_phone_number || process.env.BUSINESS_PHONE_NUMBER;
+    }
+    
     const doc = {
       msg_id: message.id,
       conversation_id: value.conversation?.id || `conv-${message.from}`,
       gs_app_id: data.metaData?.gs_app_id || 'whatsapp-webhook',
       from: message.from,
-      recipient_id: value.metadata?.display_phone_number || process.env.BUSINESS_PHONE_NUMBER,
-      text: message.text?.body || message.text,
+      recipient_id: recipient_id,
+      body: message.text?.body || message.text, // Changed from 'text' to 'body'
       type: message.type || 'text',
       status: 'delivered', // Incoming messages are delivered by default
       timestamp: parseInt(message.timestamp),

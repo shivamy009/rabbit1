@@ -32,7 +32,7 @@ function MessageBubble({ message, isSent }) {
         >
           {/* Message Text */}
           <p className="text-sm leading-relaxed break-words">
-            {message.text}
+            {message.body || message.text}
           </p>
           
           {/* Time and Status */}

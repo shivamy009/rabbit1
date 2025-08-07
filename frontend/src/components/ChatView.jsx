@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 
-function ChatView({ selectedWaId, messages, setMessages, conversations }) {
+function ChatView({ selectedWaId, messages, setMessages, conversations, messagesLoading }) {
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom when messages change or conversation is selected
@@ -24,7 +24,7 @@ function ChatView({ selectedWaId, messages, setMessages, conversations }) {
       gs_app_id: `conv${selectedWaId.slice(-4)}-app`,
       from: '918329446654',
       recipient_id: selectedWaId,
-      text,
+      body: text, // Changed from 'text' to 'body'
       type: 'text',
       status: 'sent',  // Starts as 'sent' (✓)
       timestamp: Math.floor(Date.now() / 1000),
@@ -131,7 +131,14 @@ function ChatView({ selectedWaId, messages, setMessages, conversations }) {
               backgroundColor: '#f8f9fa'
             }}
           >
-            {messages.length === 0 ? (
+            {messagesLoading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center">
+                  <div className="w-12 h-12 border-4 border-gray-200 border-t-green-500 rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-500">Loading messages...</p>
+                </div>
+              </div>
+            ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
                   <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">

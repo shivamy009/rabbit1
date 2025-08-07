@@ -10,10 +10,11 @@ function App() {
   const [conversations, setConversations] = useState([]);
   const [selectedWaId, setSelectedWaId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // For conversations loading
+  const [messagesLoading, setMessagesLoading] = useState(false); // For messages loading
 
   useEffect(() => {
-    // Fetch conversations
+    // Fetch conversations ONLY ONCE when app loads
     setLoading(true);
     axios.get(`${import.meta.env.VITE_API_URL}/api/conversations`).then((res) => {
       setConversations(res.data);
@@ -22,8 +23,10 @@ function App() {
       console.error('Error fetching conversations:', error);
       setLoading(false);
     });
+  }, []); // Empty dependency array - runs only once
 
-    // Socket.IO listeners
+  useEffect(() => {
+    // Socket.IO listeners - update when selectedWaId changes
     socket.on('newMessage', (message) => {
       if (message.from === selectedWaId || message.recipient_id === selectedWaId) {
         setMessages((prev) => [...prev, message]);
@@ -42,14 +45,17 @@ function App() {
       socket.off('newMessage');
       socket.off('statusUpdate');
     };
-  }, [selectedWaId]);
+  }, [selectedWaId]); // Only socket listeners depend on selectedWaId
 
   useEffect(() => {
     if (selectedWaId) {
+      setMessagesLoading(true);
       axios.get(`${import.meta.env.VITE_API_URL}/api/messages/${selectedWaId}`).then((res) => {
         setMessages(res.data);
+        setMessagesLoading(false);
       }).catch((error) => {
         console.error('Error fetching messages:', error);
+        setMessagesLoading(false);
       });
     }
   }, [selectedWaId]);
@@ -91,6 +97,7 @@ function App() {
           messages={messages}
           setMessages={setMessages}
           conversations={conversations}
+          messagesLoading={messagesLoading}
         />
       </div>
     </div>
