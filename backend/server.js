@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 });
 
 // Health check route
-app.get('/', (req, res) => {
+app.get('/df', (req, res) => {
   res.json({ 
     message: 'WhatsApp Webhook Server is running!', 
     timestamp: new Date().toISOString(),
