@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import axios from 'axios';
 import MessageBubble from './MessageBubble';
 
 function ChatView({ selectedWaId, messages, setMessages, conversations }) {
+  const messagesEndRef = useRef(null);
+
+  // Auto-scroll to bottom when messages change or conversation is selected
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, selectedWaId]); // Scroll when messages change or conversation changes
   const handleSendMessage = async (e) => {
     e.preventDefault();
     const text = e.target.message.value;
@@ -27,6 +37,9 @@ function ChatView({ selectedWaId, messages, setMessages, conversations }) {
     await axios.post(`${import.meta.env.VITE_API_URL}/api/messages`, newMessage);
     setMessages([...messages, newMessage]);
     e.target.message.value = '';
+
+    // Auto-scroll to bottom after sending message
+    setTimeout(scrollToBottom, 100);
 
     // Simulate message delivery after 2 seconds (✓✓)
     setTimeout(async () => {
@@ -131,9 +144,13 @@ function ChatView({ selectedWaId, messages, setMessages, conversations }) {
                 </div>
               </div>
             ) : (
-              messages.map((msg) => (
-                <MessageBubble key={msg.msg_id} message={msg} isSent={msg.from === '918329446654'} />
-              ))
+              <>
+                {messages.map((msg) => (
+                  <MessageBubble key={msg.msg_id} message={msg} isSent={msg.from === '918329446654'} />
+                ))}
+                {/* Invisible element to scroll to */}
+                <div ref={messagesEndRef} />
+              </>
             )}
           </div>
 
