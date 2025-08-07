@@ -10,13 +10,17 @@ function App() {
   const [conversations, setConversations] = useState([]);
   const [selectedWaId, setSelectedWaId] = useState(null);
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch conversations
+    setLoading(true);
     axios.get(`${import.meta.env.VITE_API_URL}/api/conversations`).then((res) => {
       setConversations(res.data);
+      setLoading(false);
     }).catch((error) => {
       console.error('Error fetching conversations:', error);
+      setLoading(false);
     });
 
     // Socket.IO listeners
@@ -81,7 +85,7 @@ function App() {
       
       {/* Main Chat Interface */}
       <div className="flex flex-1 bg-white rounded-t-3xl shadow-2xl mx-2 sm:mx-4 mb-2 sm:mb-4 overflow-hidden">
-        <ConversationList conversations={conversations} setSelectedWaId={setSelectedWaId} selectedWaId={selectedWaId} />
+        <ConversationList conversations={conversations} setSelectedWaId={setSelectedWaId} selectedWaId={selectedWaId} loading={loading} />
         <ChatView
           selectedWaId={selectedWaId}
           messages={messages}
