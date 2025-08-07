@@ -10,10 +10,7 @@ const server = http.createServer(app);
 const io = setupSocket(server);
 
 // CORS middleware
-app.use(cors({
-  origin: 'http://localhost:5173', // Allow requests from Vite dev server
-  credentials: true
-}));
+app.use(cors());
 
 // Middleware for parsing JSON and URL-encoded data
 app.use(express.json({ limit: '10mb' }));
